@@ -1,33 +1,52 @@
 class AllGalleriesPage {
-    get allGalleriesNavbarLink () {
-        return cy.get('class="nav-link nav-buttons router-link-exact-active router-link-active"');
+    get loadMore() {
+      return cy.get("button");
     }
-
-    get filterButton () {
-        return cy.get("button");
+  
+    get allGalleriesHeading() {
+      return cy.get("h1");
     }
-
-    get searchInput () {
-        return cy.get("text");
+  
+    get searchInput() {
+      return cy.get("input[aria-describedby='basic-addon2']");
     }
-
-    get loadMoreButton () {
-        return cy.get("btn btn-custom"); //da li ako imamo 2 button-a na stranici drugi mora preko klase da se definise?
+  
+    get filterButton() {
+      return cy.get("button").first();
     }
-
-    get firstGalleryTitle () {
-        return cy.get ("box-title");
+  
+    get loadMoreButton() {
+      return cy.get("button").last();
     }
-
-    allGalleriesPage (text) {
-        this.allGalleriesNavbarLink.click();
-        this.filterButton.click();
-        this.searchInput.type(text);
-        this.loadMoreButton.click();
-        this.firstGalleryTitle.click();
-
-
+  
+    get galleriesGrid() {
+      return cy.get(".grid");
     }
-}
-
-export const allGalleriesPage = new AllGalleriesPage
+  
+    get singleGallery() {
+      return cy.get(".cell").first();
+    }
+  
+    get singleGalleryHeading() {
+      return this.singleGallery.find("h2");
+    }
+  
+    get singleGalleyAuthor() {
+      return this.singleGallery.find("p");
+    }
+  
+    get singleGalleryDate() {
+      return this.singleGallery.find("small");
+    }
+  
+    get singleGalleryImage() {
+      return this.singleGallery.find("img");
+    }
+  
+    search(searchTerm) {
+      this.searchInput.type(searchTerm);
+      this.filterButton.click();
+    }
+  }
+  
+  export const allGalleriesPage = new AllGalleriesPage();
