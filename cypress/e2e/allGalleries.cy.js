@@ -25,7 +25,7 @@ describe("all galleries page test", () => {
         });
       
     it("test search", () => {
-          allGalleries.search("gggggg");
+          allGalleries.search("tttt");
           allGalleries.allGalleries.should("be.visible");
           cy.wait(500)
           allGalleries.singleGalleryHeading.click()

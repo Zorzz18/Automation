@@ -1,113 +1,53 @@
-    describe ("Register page", () => {
-        it("visit Gallery app", () => {
-            
-            cy.visit("https://gallery-app.vivifyideas.com/");
+/// <refernce types="Cypress" />
+import { registerPage } from "../page_objects/registerPage";
+import { faker } from "@faker-js/faker";
 
-        })
-    
+describe("register tests with POM", () => {
+  const userData = {
+    randomFirstName: faker.name.firstName(),
+    randomLastName: faker.name.lastName(),
+    randomEmail: faker.internet.email(),
+    randomPassword: faker.internet.password(8, true) + 1,
+    randomNewPassword: faker.internet.password(8, true) + 1,
+  };
 
+  beforeEach("visit gallery app and click the register button", () => {
+    cy.visit("/");
+    registerPage.registerNavbarLink.click();
+    cy.url().should("include", "/register");
+  });
 
-        it("visit Register Page", () => {
-           
-            cy.visit("/register");
+  
 
-        });
+  it("register with valid data", () => {
+    cy.intercept({
+      method: "POST",
+      // url: Cypress.env("apiUrl") + "/auth/register"
+      url: `${Cypress.env("apiUrl")}/auth/register`,
+    }).as("validRegister");
 
-        it("register without First name input", () => {
-           
-            cy.visit("/register");
-            cy.get("#last-name").type("zecev");
-            cy.get("#email").type("djordje1998@gmail.com");
-            cy.get("#password").type("1998djordje");
-            cy.get("#password-confirmation").type("1998djordje");
-            cy.get(":checkbox").check();
-            cy.get("button").click();
-            cy.url().should("include", "/register");
+    registerPage.registerWithValidData(
+      userData.randomFirstName,
+      userData.randomLastName,
+      userData.randomEmail,
+      userData.randomPassword
+    );
+    cy.wait("@validRegister").then((interception) => {
+      expect(interception.response.statusCode).eq(200);
+      expect(interception.response.statusMessage).eq("OK");
+    });
+    cy.url().should("not.include", "/register");
+  });
 
-        })
+  it("register via backend", () => {
+    cy.registerViaBackend(
+      userData.randomFirstName,
+      userData.randomLastName,
+      userData.randomEmail,
+      userData.randomPassword
+    );
 
-        it("register without email input", () => {
-
-            cy.visit("/register");
-            cy.get("#first-name").type("Djordje");
-            cy.get("#last-name").type("zecev");
-            cy.get("#password").type("1998djordje");
-            cy.get("#password-confirmation").type("1998djordje");
-            cy.get(":checkbox").check();
-            cy.get("button").click();
-            cy.url().should("include", "/register");
-
-        })
-
-        it("register with incorrect password confirmation", () => {
-
-            cy.visit("/register");
-            cy.get("#first-name").type("Djordje");
-            cy.get("#last-name").type("zecev");
-            cy.get("#email").type("djordje1998@gmail.com");
-            cy.get("#password").type("1998djordje");
-            cy.get("#password-confirmation").type("199djordje");
-            cy.get(":checkbox").check();
-            cy.get("button").click();
-            cy.url().should("include", "/register");
-
-        })
-            
-     
-
-        it("register without .com in email input", () => {
-
-            cy.visit("/register");
-            cy.get("#first-name").type("Djordje");
-            cy.get("#last-name").type("zecev");
-            cy.get("#email").type("djordje1998@gmail");                
-            cy.get("#password").type("1998djordje");
-            cy.get("#password-confirmation").type("1998djordje");
-            cy.get(":checkbox").check();
-            cy.get("button").click();
-            cy.url().should("include", "/register");
-
-        })
-
-        it("register with short password", () => {
-
-            cy.visit("/register");
-            cy.get("#first-name").type("Djordje");
-            cy.get("#last-name").type("zecev");
-            cy.get("#email").type("djordje1998@gmail.com");
-            cy.get("#password").type("1djole");
-            cy.get("#password-confirmation").type("1998djordje");
-            cy.get(":checkbox").check();
-            cy.get("button").click();
-            cy.url().should("include", "/register");
-
-        })
-
-        it("register without last name input", () => {
-
-            cy.visit("/register");
-            cy.get("#first-name").type("Djordje");
-            cy.get("#email").type("djordje1998@gmail.com");
-            cy.get("#password").type("1998djordje");
-            cy.get("#password-confirmation").type("1998djordje");
-            cy.get(":checkbox").check();
-            cy.get("button").click();
-            cy.url().should("include", "/register");
-
-        })
-        
-
-        it("Register with valid data", () => {
-            cy.visit("/register");
-            cy.get("#first-name").type("Djordje");
-            cy.get("#last-name").type("zecev");
-            cy.get("#email").type("djordje1998@gmail.com");
-            cy.get("#password").type("1998djordje");
-            cy.get("#password-confirmation").type("1998djordje");
-            cy.get(":checkbox").check();
-            cy.get("button").click();
-            cy.url().should("not.include", "/register");
-
-        });
-
-    })
+    cy.loginViaBackend(userData.randomEmail, userData.randomPassword);
+    cy.visit("/");
+  });
+});
